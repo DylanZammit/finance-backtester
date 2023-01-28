@@ -27,9 +27,16 @@ class HistData:
         return df
 
 
-
 if __name__ == '__main__':
-    tickers = ['AAPL', 'MSFT', 'MMM', 'AOS', 'ACN', 'ATVI', 'PEP', 'KO', 'INR']
+    import argparse
+    parser = argparse.ArgumentParser(description='MCMC setup args.')
+    parser.add_argument('--tickers', '-t', help='comma-separated tickers', type=str)
+    parser.add_argument('--outname', '-o', help='output file name', type=str)
+    parser.add_argument('--start', '-s', help='start day: %Y-%m-%d', type=str, default='2010-01-01')
+    parser.add_argument('--end', '-e', help='end day: %Y-%m-%d', type=str, default='2023-01-01')
+    args = parser.parse_args()
+
+    tickers = args.tickers.split(',')
     hd = HistData(tickers)
-    df = hd.get_data('2010-01-01', '2023-01-01', interval='1d')
-    df.to_csv('data.csv')
+    df = hd.get_data(args.start, args.end, interval='1d')
+    df.to_csv(args.outname)
