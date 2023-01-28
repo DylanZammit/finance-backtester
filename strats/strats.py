@@ -2,7 +2,7 @@ import yaml
 import numpy as np
 import pandas as pd
 from utils import cache, col_gen
-from generic_strat import Strat
+from .generic_strat import Strat
 
 
 class LongOnly(Strat):

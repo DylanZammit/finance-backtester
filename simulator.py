@@ -1,5 +1,5 @@
 import yaml
-import strats
+import strats.strats as strats
 import matplotlib.pyplot as plt
 import argparse
 import pandas as pd
