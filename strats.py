@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 from hist_data import HistData
+import yaml
+import itertools
+from IPython import embed
 
 
 def cache(f):
@@ -52,7 +55,7 @@ class Strat:
     @property
     @cache
     def pnl(self):
-        return self.pos_final.mul(self.ret).sub(self.tc).sum(axis=1).mul(self.capital)
+        return self.pos_final.mul(self.ret).sub(self.tc).sum(axis=1)
 
     @property
     @cache
@@ -85,11 +88,6 @@ class Strat:
         risk = pnl_tentative.ewm(r_com).std()
         return self.pnl_prerisk.div(risk, axis=0).mul(self.target_risk).div(AR)
 
-    @property
-    @cache
-    def pnl_risk(self):
-        return self.pos_final.mul(self.ret).sub(self.tc).sum(axis=1)
-
 
 class LongOnly(Strat):
 
@@ -105,7 +103,26 @@ class Momentum(Strat):
     @cache
     def signal(self):
         com = self.kwargs.get('com', 10)
-        return self.ret.ewm(com).mean().shift(1)
+        return self.ret.ewm(com).mean().mul(capital).round().shift(1)
+
+#class Momentum(Strat):
+#
+#    @property
+#    @cache
+#    def signal(self):
+#        com = self.kwargs.get('com', 10)
+#        return self.ret.ewm(com).mean().shift(1)
+
+class ShortOnLong(Strat):
+
+    @property
+    @cache
+    def signal(self):
+        slow = self.kwargs.get('slow', 50)
+        fast = self.kwargs.get('fast', 10)
+        slow_ewm = self.ret.ewm(slow).mean()
+        fast_ewm = self.ret.ewm(fast).mean()
+        return fast_ewm.sub(slow_ewm).mul(capital).shift()
 
 
 class MeanRevert(Strat):
@@ -116,43 +133,63 @@ class MeanRevert(Strat):
         com = self.kwargs.get('com', 10)
         return -self.ret.ewm(com).mean().shift(1)
 
+class Pairs(Strat):
+
+    @property
+    @cache
+    def signal(self):
+        pass
+
+def col_gen():
+    cols = 'bgrcmykw'
+    for col in itertools.cycle(cols):
+        yield col
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     
-    tc_cost = 0.01
+    capital = 1000
+    tc_cost = 0.01 # transaction cost as % of trades
     df = pd.read_csv('data.csv', index_col=0)
-    lo = LongOnly(df)
-    lo_nrc = LongOnly(df, risk_scale=False)
-    mo = Momentum(df, com=100)
-    mr = MeanRevert(df, com=100)
+    df = df[['AAPL', 'ACN', 'ATVI']]
 
-    lo_tc = LongOnly(df, tc_cost=tc_cost)
-    lo_nrc_tc = LongOnly(df, risk_scale=False, tc_cost=tc_cost)
-    mo_tc = Momentum(df, com=100, tc_cost=tc_cost)
-    mr_tc = MeanRevert(df, com=100, tc_cost=tc_cost)
-    
-    if 1:
-        lo.pnl.cumsum().plot(color='blue')
-        lo_nrc.pnl.cumsum().plot(color='pink')
-        mo.pnl.cumsum().plot(color='orange')
-        mr.pnl.cumsum().plot(color='green')
+    extras = {'capital': capital}
 
-        alpha = 0.3
-        lo_tc.pnl.cumsum().plot(color='blue', alpha=alpha)
-        lo_nrc_tc.pnl.cumsum().plot(color='pink', alpha=alpha)
-        mo_tc.pnl.cumsum().plot(color='orange', alpha=alpha)
-        mr_tc.pnl.cumsum().plot(color='green', alpha=alpha)
-        plt.legend(['Long Only', 'Momentum', 'Mean Reversion'])
+    # yaml for config
+    with open('config.yml', 'r') as f:
+        model_params = yaml.safe_load(f)['models']
 
-        plt.show()
+    models = []
+    for name, params in model_params.items():
+        model_info = {}
+        if params is None: params = {}
 
+        klass = globals()[name]
+        model = klass(df, **params, **extras)
+        model_tc = klass(df, tc_cost=tc_cost, **params, **extras)
 
-    if 0:
-        lo.pnl.rolling(10).std().mul(16).plot(color='blue')
-        mo.pnl.rolling(10).std().mul(16).plot(color='orange')
-        mr.pnl.rolling(10).std().mul(16).plot(color='green')
-        plt.legend(['Long Only', 'Momentum', 'Mean Reversion'])
+        models.append({'name': name, 'model': model, 'model_tc': model_tc})
 
-        plt.show()
+    alpha = 0.3
+    legends = [m['name'] for m in models]
+
+    c_gen_1 = col_gen()
+
+    for model_info in models:
+        name, model, model_tc = model_info.values()
+        color = next(c_gen_1)
+        model.pnl.cumsum().plot(color=color)
+        model_tc.pnl.cumsum().plot(color=color, alpha=alpha)
+
+    plt.legend(legends)
+
+    c_gen_2 = col_gen()
+    plt.figure()
+    for model_info in models:
+        name, model, model_tc = model_info.values()
+        color = next(c_gen_2)
+        model.pnl.rolling(10).std().mul(16).plot(color=color)
+
+    plt.legend(legends)
+    plt.show()
 

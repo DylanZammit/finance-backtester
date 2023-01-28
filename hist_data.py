@@ -29,6 +29,7 @@ class HistData:
 
 
 if __name__ == '__main__':
-    tickers = ['AAPL', 'MSFT', 'MMM', 'AOS', 'ACN', 'ATVI']
+    tickers = ['AAPL', 'MSFT', 'MMM', 'AOS', 'ACN', 'ATVI', 'PEP', 'KO', 'INR']
     hd = HistData(tickers)
-    df = hd.get_data('2010-01-01', '2023-01-01').to_csv('data.csv')
+    df = hd.get_data('2010-01-01', '2023-01-01', interval='1d')
+    df.to_csv('data.csv')
