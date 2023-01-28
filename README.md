@@ -11,11 +11,12 @@ This framework allows easy implementation of backtesting strategies in finance. 
 A strategy class needs to inherit from the generic `Strat` class. The only method that _needs_ to be defined in this strategy class is the `signal` method. This is the "brains" of the model and should output a "signal", i.e. buy, sell a certain amount. An example implementation is given by. 
 
     class LongOnly(Strat):
-    
-		@property
-	    @cache
-	    def signal(self):
-	     return self.prices.div(self.prices)
+
+        @property
+        @cache
+        def signal(self):
+            return self.prices.div(self.prices)
+
 The above example outputs a signal of 1 throughout, meaning that one should always **buy one unit of risk**. This does **not** mean that one share is bought and never sold. Since we are risk-scaling, an increase in volatility might mean that we sell shares in order to achieve a constant level of risk in our portfolio.
 
 ## Setup
