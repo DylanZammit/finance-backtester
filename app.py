@@ -18,7 +18,6 @@ data_path = os.path.join(BASE_PATH, 'data')
 asset_path = os.path.join(BASE_PATH, 'assets')
 fn_reset_css = os.path.join(asset_path, 'reset.css')
 
-#app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 app.css.append_css({'external_url': fn_reset_css})
 app.server.static_folder = 'static'  # if you run app.py from 'root-dir-name' you don't need to specify.
@@ -27,8 +26,6 @@ df = pd.read_csv(os.path.join(data_path, 'SNP500.csv'), index_col=0)
 
 LINKEDIN_ICO = 'fa-brands fa-linkedin'
 SQUARE_MINUS_ICO = 'fa-regular fa-square-minus'
-
-applied_strats = {}
 
 
 @app.callback(
@@ -76,11 +73,10 @@ def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, c
     elif ctx.triggered_id == 'strat-cancel':
         pass
     elif len(btn_remove) > 0 and len(container) > 2:
-        removed_strat = btn_remove[0]['index']
-        print(applied_strats)
+        removed_strat = ctx.triggered_id['index']
         del applied_strats[removed_strat]
         
-        container = [c for c in container if c['props']['id'] != f'{removed_strat}_strat']
+        container = [c for c in container if c['props'].get('id', '') != f'{removed_strat}_strat']
     fig, fig_diff = get_fig()
     return fig, fig_diff, container, '', None, [], ''
 
@@ -147,7 +143,7 @@ sidebar = html.Div(
                         html.Div(className='summary-short-name'),
                         html.Div('Name', className='summary-name'),
                         html.Div('Sharpe', className='summary-sharpe'),
-                        html.Div('Remove', className='summary-remove', id='summary-remove'),
+                        html.Div('Del', className='summary-remove', id='summary-remove'),
                     ],
                     className='summary-strat', id='summary-strat-title'),
                     html.Hr(className='summary-hline'),
@@ -270,4 +266,5 @@ app.layout = html.Div(
 )
 
 if __name__ == '__main__':
+    applied_strats = {}
     app.run_server(debug=True)
