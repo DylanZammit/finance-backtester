@@ -100,5 +100,5 @@ class Strat:
     @property
     @cache
     def sharpe(self):
-        return self.pnl.iloc[-1]/(self.pnl.std()*self.capital)
+        return self.pnl.mean()/(self.pnl.std()*self.capital)*16
 
