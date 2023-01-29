@@ -6,32 +6,19 @@ import pandas as pd
 from utils import col_gen
 
 
-def main():
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--tickers', '-t', dest='tickers', help='comma-separated tickers', type=str)
-    parser.add_argument('--data', '-d', dest='data', help='comma-separated tickers', type=str)
-    parser.add_argument('--n_comp', '-n', dest='n_comp', help='choose via PCA', type=int)
-    args = parser.parse_args()
+def run_sim(df, params=None, tickers=None, plot=False):
 
-    
-    df = pd.read_csv(args.data, index_col=0)
-
-    if args.tickers is not None:
-        tickers = args.tickers.split(',')
-    elif args.n_comp is not None:
-        raise NotImplementedError
-        # has lookahead!! Using all data
-        # These methods still a WIP
-        # tickers = top_uncorr(df, 5)
-        # tickers = pick_stocks_PCA(df, 5)
+    if tickers is not None:
+        tickers = tickers.split(',')
     else:
         tickers = df.columns
 
     df = df[tickers]
 
-    # yaml for config
-    with open('config.yml', 'r') as f:
-        params = yaml.safe_load(f)
+    if params is None:
+        # yaml for config
+        with open('config.yml', 'r') as f:
+            params = yaml.safe_load(f)
 
     common = params['common']
     common_no_tc = common.copy()
@@ -90,4 +77,11 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='')
+    parser.add_argument('--tickers', '-t', dest='tickers', help='comma-separated tickers', type=str)
+    parser.add_argument('--data', '-d', dest='data', help='comma-separated tickers', type=str)
+    parser.add_argument('--n_comp', '-n', dest='n_comp', help='choose via PCA', type=int)
+    args = parser.parse_args()
+    
+    df = pd.read_csv(args.data, index_col=0)
+    run_sim(df, args.tickers, plot=True)

@@ -1,3 +1,10 @@
+:root{
+    --dark: #0e0728;
+    --light: #1a133f;
+    --cancel-btn-color: #A63236;
+    --apply-btn-color: #63d890;
+}
+
 * {
     padding: 0;
     margin: 0;
@@ -10,7 +17,7 @@
 
 #backest {
     height: 100vh;
-    background-color: orange;
+    background-color: var(--light);
     display: flex;
     flex-direction: column;
 }
@@ -19,20 +26,42 @@
     display: flex;
     flex-direction: row;
     height: 18vh;
-    background-color: green;
+    background-color: var(--light);
+    padding-left: 2rem;
 }
 
 .common-option{
     width: 200px;
-    background-color: blue;
     margin: auto;
     height: 50px;
     margin-left: min(10%, 15px);
     margin-right: min(10%, 15px);
+    outline: auto !important;
+    background-color: var(--dark);
+}
+
+#common-update-button{
+    background-color: var(--apply-btn-color);
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    margin: auto;
+    margin-left: min(10%, 15px);
+    margin-right: min(10%, 15px);
+    border: 2px solid var(--dark);
+    transition-duration: 0.4s;
+    color: black;
+    border-radius: 15px;
+    text-align: center;
+    justify-content: center;
+}
+#common-update-button:hover {
+    background-color: green !important;
+    color: white;
 }
 
 #model-settings {
-    background-color: red;
+    background-color: var(--dark);
     display: flex;
     flex-direction: row;
     height: 82vh;
@@ -40,14 +69,14 @@
 }
 
 #option-area {
-    background-color: green;
+    background-color: var(--light);
     display: flex;
     margin: 2%;
     flex-direction: column;
     flex: 1;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1000px) {
     #model-settings{
         flex-direction: column-reverse;
         display: flex;
@@ -56,10 +85,18 @@
     #common-area{
         flex-direction: column;
         margin: auto;
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
     .common-option{
         width: 70%;
-        background-color: blue;
+        margin: auto;
+        height: 4vh;
+        margin-top: min(10%, 7px);
+        margin-top: min(10%, 7px);
+    }
+    #common-update-button{
+        width: 70%;
         margin: auto;
         height: 4vh;
         margin-top: min(10%, 7px);
@@ -71,14 +108,14 @@
     display: flex;
     flex-direction: column;
     height: 80%;
-    background-color: orange;
-    flex: 8;
+    background-color: var(--light);
+    flex: 10;
 }
 
 #add-new {
-    width: 100%;
+    width: 80%;
     flex: 2;
-    background-color: purple;
+    background-color: var(--light);
     display: flex;
     flex-direction: row;
     margin: auto;
@@ -86,41 +123,84 @@
 
 .strat-button{
     flex: 1;
-    margin: 15px;
-    margin-top: min(10%, 15px);
-    margin-bottom: min(10%, 15px);
-    background-color: red;
+    margin: 0;
+    margin-top: min(10%, 20px);
+    margin-bottom: min(10%, 20px);
+    border: 2px solid var(--dark);
+    /*background-color: var(--light);*/
+    transition-duration: 0.4s;
+    color: black;
+    border-radius: 15px;
+    text-align: center;
+    justify-content: center;
+}
+
+#strat-apply{
+    flex: 3;
+    background-color: var(--apply-btn-color);
+    margin-right: 10px;
+    justify-content: center;
 }
 
 
+#strat-cancel {
+    flex: 1;
+    background-color: var(--cancel-btn-color);
+}
+
+#strat-cancel:hover {
+    background-color: red !important;
+    color: white;
+}
+
+#strat-apply:hover {
+    background-color: green !important;
+    color: white;
+}
 
 #graph-area {
-    background-color: blue;
-    display: inline-block;
+    background-color: var(--light);
+    display: flex;
+    flex-direction: column;
     flex: 2;
     margin: 2%;
     height: max(auto, 600px);
 }
 
-#graph {
-    height: 600px;
+#strat-pnl{
+    flex: 2;
+}
+
+#strat-pnl-diff{
+    flex: 1;
 }
 
 .option-box {
     display: flex;
     margin: auto;
     width: 80%;
-    height: 70px;
+    height: 36px;
     margin-top: 10%;
     margin-bottom: 10%;
-    background-color: blue;
+    background-color: var(--dark) !important;
+    outline: auto !important;
     /*flex: 1;
     gap: 10px;*/
 }
 
+.Select-control {
+    background-color: var(--dark) !important;
+    color:white;
+  }
+  
+.Select-menu-outer {
+    background-color: var(--dark);
+    color: white;
+}
 
-
-
+.Select-value-label {
+    color: white !important;
+}
 
 .sidebar {
     position: fixed;
