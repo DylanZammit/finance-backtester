@@ -149,7 +149,13 @@ sidebar = html.Div(
                     html.Hr(className='summary-hline'),
             ],
             id='summary-container'
-        )
+        ),
+        html.Div(
+            [
+                html.A(html.I(className=f'{LINKEDIN_ICO} linkedin', id='linkedin-logo'),
+                       href='https://www.linkedin.com/in/dylanzam/', target='_blank'),
+            ]
+        ),
     ],
     className="sidebar",
 )
