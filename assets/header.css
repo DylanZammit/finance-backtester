@@ -24,6 +24,27 @@
     flex-direction: column;
 }
 
+#title {
+    color: white;
+    display: flex;
+    align-items: center;
+    flex: 3;
+    justify-content: end;
+    margin-right: 5%;
+    font-size: 3em;
+}
+
+#fig-dropdowns {
+    color: white;
+    display: flex;
+    align-items: center;
+    flex: 3;
+    justify-content: end;
+    margin-right: 5%;
+    flex-direction: row;
+    flex-direction: column;
+}
+
 #common-area {
     display: flex;
     flex-direction: row;
@@ -32,19 +53,22 @@
     padding-left: 2rem;
 }
 
-.common-option{
+
+.common-option, #fig-min-dd, #fig-maj-dd{
     width: 200px;
     margin: auto;
-    height: 50px;
+    height: 36px;
     margin-left: min(10%, 15px);
     margin-right: min(10%, 15px);
     outline: auto !important;
     background-color: var(--dark);
     padding-left: 10px;
     color: white;
+    flex: 1;
 }
 
 #common-update-button{
+    flex: 0.7;
     background-color: var(--apply-btn-color);
     justify-content: center;
     width: 100px;
@@ -95,8 +119,9 @@
         margin: auto;
         margin-top: 20px;
         margin-bottom: 20px;
+        height: 24vh;
     }
-    .common-option{
+    .common-option, #fig-min-dd, #fig-maj-dd{
         width: 70%;
         margin: auto;
         height: 4vh;
@@ -218,10 +243,15 @@
     padding-left: 10px;
 }
 
+.Select input{
+    color:white;
+}
+
 .Select-control {
     background-color: rgba(0,0,0,0) !important;
     color: white;
     border: none;
+    cursor: pointer;
   }
   
 .Select-menu-outer {
@@ -317,10 +347,31 @@
     font-size: 1.2em;
 }
 
+
+#linkedin-container{
+    display: flex;
+    flex-direction: row;
+}
+
 #linkedin-logo {
     font-size: 3em;
     color: white;
     cursor: pointer;
+}
+
+#linkedin-text{
+    display: none;
+}
+
+.sidebar:hover #linkedin-text{
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    font-size: 1.3em;
+    color: white !important;
+    cursor: pointer;
+    margin-left: 15px;
+    text-decoration: none !important;
 }
 
 .summary-strat{
@@ -328,6 +379,7 @@
     flex-direction: row;
     height: 40px;
     margin-bottom: 10px;
+    white-space: nowrap;
 }
 
 /* reveal the shortname when sidebar is toggled */
@@ -345,6 +397,7 @@
 
 .sidebar:hover .summary-hline{
     display: block; 
+    overflow: hidden;
     width: 95%;
     color: gray;
     margin: auto;
@@ -358,6 +411,7 @@
 
 .sidebar:hover .summary-name{
     flex:3;
+    overflow: hidden;
     display: inline-block;
     margin: auto;
 }
@@ -366,6 +420,7 @@
     flex:1;
     display: inline-block;
     margin: auto;
+    overflow: hidden;
 }
 
 .summary-name{
@@ -382,10 +437,18 @@
 
 .sidebar:hover .summary-remove{
     flex:1;
-    display: inline-block;
+    display: inline-flex;
     margin: auto;
     color: white;
     width: 1em;
     cursor: pointer;
+    overflow: hidden;
+    justify-content: center;
+    transition-duration: 0.4s;
 }
+
+.summary-remove:hover{
+    color: var(--cancel-btn-color) !important;
+}
+
 

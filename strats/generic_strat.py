@@ -99,6 +99,11 @@ class Strat:
 
     @property
     @cache
+    def drawdown(self):
+        return self.pnl.cumsum() - self.pnl.cumsum().expanding().max()
+
+    @property
+    @cache
     def sharpe(self):
         return self.pnl.mean()/(self.pnl.std()*self.capital)*16
 

@@ -64,7 +64,11 @@ def get_SnP_tickers():
     url = r'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
     df = pd.read_html(url)[0]
     tickers = ','.join(df.Symbol)
-    return tickers
+    return dict(zip(df.Symbol, df.Security))
 
 if __name__=='__main__':
-    print(get_SnP_tickers())
+    import json
+    tick_sec = get_SnP_tickers()
+    json_txt = json.dumps(tick_sec)
+    with open('sec.json', 'w') as f:
+        f.write(json_txt)

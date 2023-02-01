@@ -77,6 +77,19 @@ def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, c
         del applied_strats[removed_strat]
         
         container = [c for c in container if c['props'].get('id', '') != f'{removed_strat}_strat']
+    else:
+        for input_name, new_strat in applied_strats.items():
+            summary = html.Div(
+                [
+                    html.Div(input_name[:2], className='summary-short-name'),
+                    html.Div(input_name, className='summary-name'),
+                    html.Div(f'{new_strat.sharpe:.2f}', className='summary-sharpe'),
+                    html.I(className=f'{SQUARE_MINUS_ICO} summary-remove', id={'type': 'summary-remove', 'index': input_name}),
+                ],
+                className='summary-strat', id=f'{input_name}_strat'),
+
+            container.append(summary[0])
+
     fig, fig_diff = get_fig()
     return fig, fig_diff, container, '', None, [], ''
 
@@ -88,7 +101,8 @@ def get_fig():
         pnl_strat = strat.pnl
         pnl_strat.name = name
 
-        pnls_diff.append(pnl_strat)
+        pnls_diff.append(strat.drawdown)
+        #pnls_diff.append(pnl_strat)
         pnls.append(pnl_strat.cumsum())
 
     if len(pnls):
@@ -152,9 +166,11 @@ sidebar = html.Div(
         ),
         html.Div(
             [
-                html.A(html.I(className=f'{LINKEDIN_ICO} linkedin', id='linkedin-logo'),
-                       href='https://www.linkedin.com/in/dylanzam/', target='_blank'),
-            ]
+                html.A(html.I(className=f'{LINKEDIN_ICO} linkedin', id='linkedin-logo'), href='https://www.linkedin.com/in/dylanzam/', target='_blank'),
+                html.A(html.H2('Dylan Zammit'), href='https://www.linkedin.com/in/dylanzam/', target='_blank',
+                       id='linkedin-text'),
+            ],
+            id='linkedin-container'
         ),
     ],
     className="sidebar",
@@ -189,10 +205,27 @@ common_area = html.Div(
                             max=100,
                             step=1,
                         ),
+                        dcc.Dropdown(
+                            ['PnL', 'Risk', 'Drawdown'],
+                            placeholder='Main Plot', 
+                            id='fig-maj-dd',
+                        ),
+                        dcc.Dropdown(
+                            ['PnL', 'Risk', 'Drawdown'],
+                            placeholder='Minor Plot', 
+                            id='fig-min-dd',
+                        ),
                         html.Div('Update', id='common-update-button'),
+                        #html.H1('Backtester', id='title')
                     ],
                     id='common-area'
                 )
+
+import json
+with open('sec.json', 'r') as f:
+    tick_sec = json.loads(f.read())
+tick_sec = {k: f'{k} - {v}' for k, v in tick_sec.items()}
+tick_sec = dict(sorted(tick_sec.items(), key=lambda item: item[1]))
 
 option_area = html.Div(
                 [
@@ -216,8 +249,8 @@ option_area = html.Div(
                                 id='option-strat',
                             ),
                             dcc.Dropdown(
-                                df.columns.sort_values(),
-                                #['AAPL'],
+                                #df.columns.sort_values(),
+                                tick_sec,
                                 placeholder='Pick Stocks', 
                                 className='option-box',
                                 id='option-stocks',
@@ -273,4 +306,9 @@ app.layout = html.Div(
 
 if __name__ == '__main__':
     applied_strats = {}
+    FAANG = ['META', 'AMZN', 'AAPL', 'NFLX', 'GOOG']
+    long_only_faang = LongOnly(df[FAANG]) # pass params as well!!
+    momentum_faang = Momentum(df[FAANG]) # pass params as well!!
+    applied_strats['Long FAANG'] = long_only_faang
+    applied_strats['Momentum FAANG'] = momentum_faang
     app.run_server(debug=True)
