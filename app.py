@@ -37,6 +37,12 @@ SQUARE_MINUS_ICO = 'fa-regular fa-square-minus'
       Output('option-strat', 'value'),
       Output('option-stocks', 'value'),
       Output('option-param1', 'value'),
+
+      Output('common-capital', 'value'),
+      Output('common-risk', 'value'),
+      Output('common-tc', 'value'),
+      Output('fig-maj-dd', 'value'),
+      Output('fig-min-dd', 'value'),
   
   [
       Input('strat-apply', 'n_clicks'),
@@ -48,9 +54,16 @@ SQUARE_MINUS_ICO = 'fa-regular fa-square-minus'
       State('summary-container', 'children'),
       Input({'type': 'summary-remove', 'index': ALL}, 'n_clicks'),
       State({'type': 'summary-remove', 'index': ALL}, 'id'),
+
+      Input('common-update-button', 'n_clicks'),
+      State('common-capital', 'value'),
+      State('common-risk', 'value'),
+      State('common-tc', 'value'),
+      State('fig-maj-dd', 'value'),
+      State('fig-min-dd', 'value'),
   ]
 )
-def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, container, n_click, btn_remove):
+def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, container, n_click, btn_remove, n, capital, risk, tc, minfig, majfig):
     if ctx.triggered_id == 'strat-apply':
         if strat is None: strat = 'LongOnly'
         if stocks is None: stocks = []
@@ -70,13 +83,27 @@ def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, c
             className='summary-strat', id=f'{input_name}_strat'),
 
         container.append(summary[0])
+        fig, fig_diff = get_fig('PnL', 'Risk')
+        return fig, fig_diff, container, '', None, [], '', capital, risk, tc, minfig, majfig
     elif ctx.triggered_id == 'strat-cancel':
-        pass
-    elif len(btn_remove) > 0 and len(container) > 2:
+        fig, fig_diff = get_fig('PnL', 'Risk')
+        return fig, fig_diff, container, '', None, [], '', capital, risk, tc, minfig, majfig
+    elif isinstance(ctx.triggered_id, dict) and ctx.triggered_id['type'] == 'summary-remove':
         removed_strat = ctx.triggered_id['index']
         del applied_strats[removed_strat]
         
         container = [c for c in container if c['props'].get('id', '') != f'{removed_strat}_strat']
+        fig, fig_diff = get_fig('PnL', 'Risk')
+        return fig, fig_diff, container, '', None, [], '', capital, risk, tc, minfig, majfig
+    elif ctx.triggered_id == 'common-update-button':
+
+        for k, v in applied_strats.items():
+            pass
+
+        fig, fig_diff = get_fig(minfig, majfig)
+
+        return fig, fig_diff, container, '', None, [], '', None, None, None, None, None
+
     else:
         for input_name, new_strat in applied_strats.items():
             summary = html.Div(
@@ -90,51 +117,56 @@ def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, c
 
             container.append(summary[0])
 
-    fig, fig_diff = get_fig()
-    return fig, fig_diff, container, '', None, [], ''
+        fig, fig_diff = get_fig('PnL', 'Risk')
+        return fig, fig_diff, container, '', None, [], '', capital, risk, tc, minfig, majfig
 
 
-def get_fig():
-    pnls = []
-    pnls_diff = []
-    for name, strat in applied_strats.items():
-        pnl_strat = strat.pnl
-        pnl_strat.name = name
+def get_fig(*args):
 
-        pnls_diff.append(strat.drawdown)
-        #pnls_diff.append(pnl_strat)
-        pnls.append(pnl_strat.cumsum())
+    figs = []
+    for figtype in args:
 
-    if len(pnls):
-        pnls = pd.concat(pnls, axis=1)
-        pnls_diff = pd.concat(pnls_diff, axis=1)
-    else:
-        pnls = pd.DataFrame(index=df.index)
-        pnls_diff = pd.DataFrame(index=df.index)
+        data = pd.DataFrame()
 
-    fig = px.line(pnls, x=pnls.index, y=pnls.columns)
-    fig_diff = px.line(pnls_diff, x=pnls.index, y=pnls.columns)
+        for name, strat in applied_strats.items():
+            my_figtype = figtype
+            if figtype.lower() == 'pnl':
+                my_figtype = 'cumpnl'
+            if my_figtype.lower() == 'risk':
+                pdata = getattr(strat, 'pnl').rolling(50, min_periods=1).std()*16
+            else:
+                pdata = getattr(strat, my_figtype.lower())
 
-    largs = dict(
-        colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
-        template='plotly_dark',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        plot_bgcolor='rgba(0, 0, 0, 0)',
-        #margin={'b': 15},
-        hovermode='x',
-        autosize=True,
-        title={'text': 'Strategy Profit & Loss', 'font': {'color': 'white'}, 'x': 0.5},
-        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
-        legend_title_text=None,
-        yaxis_title=None,
-        xaxis_title=None,
-        margin=dict(l=25, r=25, t=55, b=5),
-    )
+            pdata.name = name
+            data = pd.concat([data, pdata], axis=1)
 
-    fig.update_layout(**largs)
-    largs.pop('title')
-    fig_diff.update_layout(**largs)
-    return fig, fig_diff
+
+        #if not len(minfig_data):
+        #    pnls = pd.DataFrame(index=df.index)
+        #    pnls_diff = pd.DataFrame(index=df.index)
+
+        fig = px.line(data, x=data.index, y=data.columns)
+
+        largs = dict(
+            colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
+            template='plotly_dark',
+            paper_bgcolor='rgba(0, 0, 0, 0)',
+            plot_bgcolor='rgba(0, 0, 0, 0)',
+            margin={'b': 15},
+            #margin=dict(l=25, r=25, t=55, b=5),
+            hovermode='x',
+            autosize=True,
+            title={'text': figtype, 'font': {'color': 'white'}, 'x': 0.5},
+            legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+            legend_title_text=None,
+            yaxis_title=None,
+            xaxis_title=None,
+        )
+
+        fig.update_layout(**largs)
+        figs.append(fig)
+
+    return tuple(figs)
 
 PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
 PLOTLY_LOGO = 'https://thumbs.dreamstime.com/b/logo-candlestick-trading-chart-analyzing-forex-stock-market-92714359.jpg'

@@ -99,6 +99,11 @@ class Strat:
 
     @property
     @cache
+    def cumpnl(self):
+        return self.pnl.cumsum()
+
+    @property
+    @cache
     def drawdown(self):
         return self.pnl.cumsum() - self.pnl.cumsum().expanding().max()
 
