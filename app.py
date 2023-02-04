@@ -12,6 +12,12 @@ import os
 import numpy as np
 import dash_daq as daq
 from strats.strats import *
+import json
+
+with open('sec.json', 'r') as f:
+    tick_sec = json.loads(f.read())
+tick_sec = {k: f'{k} - {v}' for k, v in tick_sec.items()}
+tick_sec = dict(sorted(tick_sec.items(), key=lambda item: item[1]))
 
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 data_path = os.path.join(BASE_PATH, 'data')
@@ -36,21 +42,23 @@ SQUARE_MINUS_ICO = 'fa-regular fa-square-minus'
       Output('option-name', 'value'),
       Output('option-strat', 'value'),
       Output('option-stocks', 'value'),
-      Output('option-param1', 'value'),
+      Output('strat-params-container', 'children'),
+      #Output('option-param1', 'value'),
 
       Output('common-capital', 'value'),
       Output('common-risk', 'value'),
       Output('common-tc', 'value'),
       Output('fig-maj-dd', 'value'),
       Output('fig-min-dd', 'value'),
-  
   [
       Input('strat-apply', 'n_clicks'),
       Input('strat-cancel', 'n_clicks'),
       State('option-name', 'value'),
       State('option-strat', 'value'),
       State('option-stocks', 'value'),
-      State('option-param1', 'value'),
+      #State('option-param1', 'value'),
+      State({'type': 'strat-param-option', 'index': ALL, 'param': ALL}, 'id'),
+      State({'type': 'strat-param-option', 'index': ALL, 'param': ALL}, 'value'),
       State('summary-container', 'children'),
       Input({'type': 'summary-remove', 'index': ALL}, 'n_clicks'),
       State({'type': 'summary-remove', 'index': ALL}, 'id'),
@@ -61,16 +69,43 @@ SQUARE_MINUS_ICO = 'fa-regular fa-square-minus'
       State('common-tc', 'value'),
       State('fig-maj-dd', 'value'),
       State('fig-min-dd', 'value'),
+
+      Input('option-strat', 'value'),
   ]
 )
-def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, container, n_click, btn_remove, n, capital, risk, tc, minfig, majfig):
-    if ctx.triggered_id == 'strat-apply':
+def update_pnl_figure(
+    btn_apply, btn_cancel, input_name, 
+    strat, stocks, param_id, param_val, container, 
+    n_click, btn_remove, n,
+    capital, risk, tc, minfig, 
+    majfig, strat_val
+):
+    strat_param_map = {
+        'LongOnly': {},
+        'Momentum': {'EWMA Window': 'com'},
+        'MeanRevert': {'EWMA Window': 'com'},
+    }
+    if isinstance(ctx.triggered, list) and ctx.triggered[0]['prop_id'] == 'option-strat.value':
+        strat_params_container = [
+            dcc.Input(
+                type='number',
+                placeholder=k, 
+                className='option-box',
+                id={'type': 'strat-param-option', 'index': strat_val, 'param': v}
+            )
+            for k, v in strat_param_map[strat_val].items()
+        ]
+
+        fig, fig_diff = get_fig('PnL', 'Risk')
+        return fig, fig_diff, container, input_name, strat, stocks, strat_params_container, capital, risk, tc, minfig, majfig
+    elif ctx.triggered_id == 'strat-apply':
         if strat is None: strat = 'LongOnly'
         if stocks is None: stocks = []
         #if stocks is None: stocks = ['AAPL']
         if len(stocks) > 10: stocks = stocks[:10]
 
-        new_strat = globals()[strat](df[stocks]) # pass params as well!!
+        kwargs = {pid['param']: pval for pid, pval in zip(param_id, param_val)}
+        new_strat = globals()[strat](df[stocks], **kwargs) # pass params as well!!
         applied_strats[input_name] = new_strat
     
         summary = html.Div(
@@ -84,17 +119,17 @@ def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, c
 
         container.append(summary[0])
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], '', capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], [], capital, risk, tc, minfig, majfig
     elif ctx.triggered_id == 'strat-cancel':
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], '', capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], [], capital, risk, tc, minfig, majfig
     elif isinstance(ctx.triggered_id, dict) and ctx.triggered_id['type'] == 'summary-remove':
         removed_strat = ctx.triggered_id['index']
         del applied_strats[removed_strat]
         
         container = [c for c in container if c['props'].get('id', '') != f'{removed_strat}_strat']
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], '', capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], [], capital, risk, tc, minfig, majfig
     elif ctx.triggered_id == 'common-update-button':
 
         for k, v in applied_strats.items():
@@ -102,7 +137,7 @@ def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, c
 
         fig, fig_diff = get_fig(minfig, majfig)
 
-        return fig, fig_diff, container, '', None, [], '', None, None, None, None, None
+        return fig, fig_diff, container, '', None, [], [], None, None, None, None, None
 
     else:
         for input_name, new_strat in applied_strats.items():
@@ -118,7 +153,7 @@ def update_pnl_figure(btn_apply, btn_cancel, input_name, strat, stocks, param, c
             container.append(summary[0])
 
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], '', capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], [], capital, risk, tc, minfig, majfig
 
 
 def get_fig(*args):
@@ -253,12 +288,6 @@ common_area = html.Div(
                     id='common-area'
                 )
 
-import json
-with open('sec.json', 'r') as f:
-    tick_sec = json.loads(f.read())
-tick_sec = {k: f'{k} - {v}' for k, v in tick_sec.items()}
-tick_sec = dict(sorted(tick_sec.items(), key=lambda item: item[1]))
-
 option_area = html.Div(
                 [
                     html.Div(
@@ -289,12 +318,9 @@ option_area = html.Div(
                                 multi=True,
                             ),
                             html.Hr(className='strat-hline'),
-                            dcc.Input(
-                                type='number',
-                                placeholder='EWMA CoM (days)', 
-                                className='option-box',
-                                id='option-param1',
-                            ),
+                            html.Div(
+                                id='strat-params-container',
+                            )
                         ],
                         id='strat-options-container',
                     ),

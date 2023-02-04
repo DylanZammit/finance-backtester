@@ -128,6 +128,13 @@
         margin-top: min(10%, 7px);
         margin-top: min(10%, 7px);
     }
+    #common-area {
+        display: flex;
+        flex-direction: column;
+        height: 18vh;
+        background-color: var(--light);
+        padding-left: 2rem;
+    }
     #common-update-button{
         width: 70%;
         margin: auto;
@@ -242,6 +249,17 @@
     color: white;
     padding-left: 10px;
 }
+
+#strat-params-container {
+    display: flex;
+    width: 100%;
+    margin: 0;
+    background-color: var(--light) !important;
+    color: white;
+    padding: 0;
+    flex-direction: column;
+}
+
 
 .Select input{
     color:white;
@@ -372,6 +390,7 @@
     cursor: pointer;
     margin-left: 15px;
     text-decoration: none !important;
+    align-items: end;
 }
 
 .summary-strat{
