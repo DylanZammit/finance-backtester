@@ -75,17 +75,14 @@ class Strat:
         r_com = self.kwargs.get('r_com', 100)
         pnl_tentative = self.pnl_prerisk.sum(axis=1)
         risk = pnl_tentative.ewm(r_com).std()
-        return self.signal_smoothed.div(self.risk, axis=0).div(risk, axis=0).div(AR)#mul(self.target_risk).div(AR)
-        #return self.signal_smoothed.div(self.risk, axis=0).div(risk, axis=0).div(AR).mul(self.target_risk).div(AR)
+        return self.signal_smoothed.div(self.risk, axis=0).div(risk, axis=0).div(AR)
 
     @property
     @cache
     def pos(self):
         return self._pos_basic.div(self.min_trade).round().mul(self.min_trade)
-        #return self._pos_basic.div(self.min_trade).round().mul(self.min_trade).mul(self.capital)
 
     @property
-    #@cache
     def tc(self):
         return self.pos.diff().abs().mul(self.tc_cost).div(self.prices)
 
@@ -95,23 +92,18 @@ class Strat:
         return self.signal_smoothed.mul(self.ret).div(self.risk, axis=0)
 
     @property
-    #@cache
     def pnl(self):
         return self.pos.mul(self.ret).sub(self.tc).sum(axis=1).mul(self.target_risk)
 
     @property
-    #@cache
     def cumpnl(self):
         return self.pnl.cumsum()
 
     @property
-    #@cache
     def drawdown(self):
         return self.cumpnl - self.cumpnl.expanding().max()
 
     @property
-    #@cache
     def sharpe(self):
         return self.pnl.mean()/(self.pnl.std())*16
-        #return self.pnl.mean()/(self.pnl.std()*self.capital)*16
 

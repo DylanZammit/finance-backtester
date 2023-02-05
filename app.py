@@ -43,19 +43,12 @@ SQUARE_MINUS_ICO = 'fas fa-regular fa-square-minus'
       Output('option-strat', 'value'),
       Output('option-stocks', 'value'),
       Output('strat-params-container', 'children'),
-      #Output('option-param1', 'value'),
-
-      #Output('common-risk', 'value'),
-      #Output('common-tc', 'value'),
-      #Output('fig-maj-dd', 'value'),
-      #Output('fig-min-dd', 'value'),
   [
       Input('strat-apply', 'n_clicks'), # 1
       Input('strat-cancel', 'n_clicks'), # 2
       State('option-name', 'value'), # 3
       State('option-strat', 'value'), # 4
       State('option-stocks', 'value'), # 5
-      #State('option-param1', 'value'),
       State({'type': 'strat-param-option', 'index': ALL, 'param': ALL}, 'id'), # 6
       State({'type': 'strat-param-option', 'index': ALL, 'param': ALL}, 'value'), # 7
       State('summary-container', 'children'), # 8
@@ -106,7 +99,7 @@ def update_pnl_figure(
         ]
 
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, input_name, strat, stocks, strat_params_container#, risk, tc, minfig, majfig
+        return fig, fig_diff, container, input_name, strat, stocks, strat_params_container
     elif ctx.triggered_id == 'strat-apply':
         if strat is None: strat = 'LongOnly'
         if stocks is None: stocks = []
@@ -128,17 +121,17 @@ def update_pnl_figure(
 
         container.append(summary[0])
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], []#, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], []
     elif ctx.triggered_id == 'strat-cancel':
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], []#, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], []
     elif isinstance(ctx.triggered_id, dict) and ctx.triggered_id['type'] == 'summary-remove':
         removed_strat = ctx.triggered_id['index']
         del applied_strats[removed_strat]
         
         container = [c for c in container if c['props'].get('id', '') != f'{removed_strat}_strat']
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], []#, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], []
     elif ctx.triggered_id == 'common-update-button':
 
         for k, v in applied_strats.items():
@@ -147,7 +140,7 @@ def update_pnl_figure(
 
         fig, fig_diff = get_fig(minfig, majfig)
 
-        return fig, fig_diff, container, '', None, [], []#, None, None, None, None
+        return fig, fig_diff, container, '', None, [], []
 
     else:
         for input_name, new_strat in applied_strats.items():
@@ -163,7 +156,7 @@ def update_pnl_figure(
             container.append(summary[0])
 
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], []#, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], []
 
 
 def get_fig(*args):
@@ -234,7 +227,7 @@ sidebar = html.Div(
                         html.Div(className='summary-short-name'),
                         html.Div('Name', className='summary-name'),
                         html.Div('Sharpe', className='summary-sharpe'),
-                        html.Div('Del', className='summary-del'),#, id='summary-remove'),
+                        html.Div('Del', className='summary-del'),
                     ],
                     className='summary-strat', id='summary-strat-title'),
                     html.Hr(className='summary-hline'),
@@ -332,7 +325,7 @@ option_area = html.Div(
                     html.Div(
                         [
                             html.Div('Add Strategy', className='strat-button', id='strat-apply'),
-                            html.Div(className='strat-button', id='strat-cancel'),
+                            html.Div('Clear', className='strat-button', id='strat-cancel'),
                         ],
                         id='add-new',
                     )
