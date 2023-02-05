@@ -30,8 +30,8 @@ app.server.static_folder = 'static'  # if you run app.py from 'root-dir-name' yo
 app.title = 'S&P500 Backtest'
 df = pd.read_csv(os.path.join(data_path, 'SNP500.csv'), index_col=0)
 
-LINKEDIN_ICO = 'fa-brands fa-linkedin'
-SQUARE_MINUS_ICO = 'fa-regular fa-square-minus'
+LINKEDIN_ICO = 'fas fa-brands fa-linkedin'
+SQUARE_MINUS_ICO = 'fas fa-regular fa-square-minus'
 
 
 @app.callback(
@@ -45,40 +45,49 @@ SQUARE_MINUS_ICO = 'fa-regular fa-square-minus'
       Output('strat-params-container', 'children'),
       #Output('option-param1', 'value'),
 
-      Output('common-capital', 'value'),
-      Output('common-risk', 'value'),
-      Output('common-tc', 'value'),
-      Output('fig-maj-dd', 'value'),
-      Output('fig-min-dd', 'value'),
+      #Output('common-risk', 'value'),
+      #Output('common-tc', 'value'),
+      #Output('fig-maj-dd', 'value'),
+      #Output('fig-min-dd', 'value'),
   [
-      Input('strat-apply', 'n_clicks'),
-      Input('strat-cancel', 'n_clicks'),
-      State('option-name', 'value'),
-      State('option-strat', 'value'),
-      State('option-stocks', 'value'),
+      Input('strat-apply', 'n_clicks'), # 1
+      Input('strat-cancel', 'n_clicks'), # 2
+      State('option-name', 'value'), # 3
+      State('option-strat', 'value'), # 4
+      State('option-stocks', 'value'), # 5
       #State('option-param1', 'value'),
-      State({'type': 'strat-param-option', 'index': ALL, 'param': ALL}, 'id'),
-      State({'type': 'strat-param-option', 'index': ALL, 'param': ALL}, 'value'),
-      State('summary-container', 'children'),
-      Input({'type': 'summary-remove', 'index': ALL}, 'n_clicks'),
-      State({'type': 'summary-remove', 'index': ALL}, 'id'),
+      State({'type': 'strat-param-option', 'index': ALL, 'param': ALL}, 'id'), # 6
+      State({'type': 'strat-param-option', 'index': ALL, 'param': ALL}, 'value'), # 7
+      State('summary-container', 'children'), # 8
+      Input({'type': 'summary-remove', 'index': ALL}, 'n_clicks'), # 9
+      State({'type': 'summary-remove', 'index': ALL}, 'id'), # 10
 
-      Input('common-update-button', 'n_clicks'),
-      State('common-capital', 'value'),
-      State('common-risk', 'value'),
-      State('common-tc', 'value'),
-      State('fig-maj-dd', 'value'),
-      State('fig-min-dd', 'value'),
+      Input('common-update-button', 'n_clicks'), # 11
+      State('common-risk', 'value'), # 12
+      State('common-tc', 'value'), # 13
+      State('fig-maj-dd', 'value'), # 14
+      State('fig-min-dd', 'value'), # 15
 
-      Input('option-strat', 'value'),
+      Input('option-strat', 'value'), #16
   ]
 )
 def update_pnl_figure(
-    btn_apply, btn_cancel, input_name, 
-    strat, stocks, param_id, param_val, container, 
-    n_click, btn_remove, n,
-    capital, risk, tc, minfig, 
-    majfig, strat_val
+    btn_apply, # 1
+    btn_cancel, # 2
+    input_name, # 3
+    strat, # 4
+    stocks, # 5
+    param_id, # 6
+    param_val, # 7
+    container, # 8
+    n_click, # 9
+    btn_remove, #10
+    n, # 11
+    risk, # 12
+    tc, # 13
+    minfig, # 14
+    majfig, # 15
+    strat_val # 16
 ):
     strat_param_map = {
         'LongOnly': {},
@@ -97,7 +106,7 @@ def update_pnl_figure(
         ]
 
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, input_name, strat, stocks, strat_params_container, capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, input_name, strat, stocks, strat_params_container#, risk, tc, minfig, majfig
     elif ctx.triggered_id == 'strat-apply':
         if strat is None: strat = 'LongOnly'
         if stocks is None: stocks = []
@@ -105,7 +114,7 @@ def update_pnl_figure(
         if len(stocks) > 10: stocks = stocks[:10]
 
         kwargs = {pid['param']: pval for pid, pval in zip(param_id, param_val)}
-        new_strat = globals()[strat](df[stocks], **kwargs) # pass params as well!!
+        new_strat = globals()[strat](df[stocks], **kwargs)
         applied_strats[input_name] = new_strat
     
         summary = html.Div(
@@ -119,25 +128,26 @@ def update_pnl_figure(
 
         container.append(summary[0])
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], [], capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], []#, risk, tc, minfig, majfig
     elif ctx.triggered_id == 'strat-cancel':
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], [], capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], []#, risk, tc, minfig, majfig
     elif isinstance(ctx.triggered_id, dict) and ctx.triggered_id['type'] == 'summary-remove':
         removed_strat = ctx.triggered_id['index']
         del applied_strats[removed_strat]
         
         container = [c for c in container if c['props'].get('id', '') != f'{removed_strat}_strat']
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], [], capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], []#, risk, tc, minfig, majfig
     elif ctx.triggered_id == 'common-update-button':
 
         for k, v in applied_strats.items():
-            pass
+            v.target_risk = int(risk)/100
+            v.tc_cost = int(tc)/100
 
         fig, fig_diff = get_fig(minfig, majfig)
 
-        return fig, fig_diff, container, '', None, [], [], None, None, None, None, None
+        return fig, fig_diff, container, '', None, [], []#, None, None, None, None
 
     else:
         for input_name, new_strat in applied_strats.items():
@@ -153,7 +163,7 @@ def update_pnl_figure(
             container.append(summary[0])
 
         fig, fig_diff = get_fig('PnL', 'Risk')
-        return fig, fig_diff, container, '', None, [], [], capital, risk, tc, minfig, majfig
+        return fig, fig_diff, container, '', None, [], []#, risk, tc, minfig, majfig
 
 
 def get_fig(*args):
@@ -224,7 +234,7 @@ sidebar = html.Div(
                         html.Div(className='summary-short-name'),
                         html.Div('Name', className='summary-name'),
                         html.Div('Sharpe', className='summary-sharpe'),
-                        html.Div('Del', className='summary-remove', id='summary-remove'),
+                        html.Div('Del', className='summary-del'),#, id='summary-remove'),
                     ],
                     className='summary-strat', id='summary-strat-title'),
                     html.Hr(className='summary-hline'),
@@ -245,42 +255,36 @@ sidebar = html.Div(
 #from dash.dash_table.Format import Format, Scheme, Sign, Symbol
 common_area = html.Div(
                     [
-                        dcc.Input(
-                            type='number', 
-                            placeholder='€ Capital', 
-                            className='common-option',
-                            step=1,
-                            min=1,
-                            id='common-capital',
-                            #format=Format(symbol=Symbol.yes,symbol_suffix=u'€')
-                        ),
-                        dcc.Input(
-                            type='number', 
-                            placeholder='% Transaction Cost', 
-                            className='common-option',
+                        dcc.Dropdown(
+                            {i: f'{i}% Transaction Cost' for i in range(0, 6)},
+                            value='0',
                             id='common-tc',
-                            min=0,
-                            max=5,
-                            step=0.5,
+                            clearable=False,
+                            searchable=False,
                         ),
-                        dcc.Input(
-                            type='number', 
-                            placeholder='% Annualized Risk', 
-                            className='common-option',
+                        dcc.Dropdown(
+                            {i: f'{i}% Annualized Risk' for i in range(5, 105, 5)},
+                            value='100',
+                            #placeholder='% Annualized Risk', 
                             id='common-risk',
-                            min=0,
-                            max=100,
-                            step=1,
+                            clearable=False,
+                            searchable=False,
                         ),
                         dcc.Dropdown(
                             ['PnL', 'Risk', 'Drawdown'],
-                            placeholder='Main Plot', 
+                            'PnL',
+                            placeholder='Major Plot', 
                             id='fig-maj-dd',
+                            clearable=False,
+                            searchable=False,
                         ),
                         dcc.Dropdown(
                             ['PnL', 'Risk', 'Drawdown'],
+                            'Risk',
                             placeholder='Minor Plot', 
                             id='fig-min-dd',
+                            clearable=False,
+                            searchable=False,
                         ),
                         html.Div('Update', id='common-update-button'),
                         #html.H1('Backtester', id='title')
@@ -292,7 +296,7 @@ option_area = html.Div(
                 [
                     html.Div(
                         [
-                            html.H2('Strategy Setup', id='strat-setup-title'),
+                            html.H2('Portfolio Setup', id='strat-setup-title'),
                             dcc.Input(
                                 type='text', 
                                 placeholder='Set Strategy Name', 
@@ -308,6 +312,7 @@ option_area = html.Div(
                                 placeholder='Choose Strategy', 
                                 className='option-box',
                                 id='option-strat',
+                                searchable=False,
                             ),
                             dcc.Dropdown(
                                 #df.columns.sort_values(),
@@ -340,12 +345,22 @@ content = html.Div(
                 html.Div(
                     [
                         option_area,
-                        html.Div(
+                        dcc.Loading( # have to do style here for some reason
                             [
                                 dcc.Graph(id='strat-pnl', config={'displayModeBar': False}),
                                 dcc.Graph(id='strat-pnl-diff', config={'displayModeBar': False}),
                             ],
-                            id='graph-area')
+                            id='graph-area',
+                            parent_style={
+                                'background-color': 'var(--light)',
+                                'display': 'flex',
+                                'flex-direction': 'column',
+                                'flex': 2,
+                                'margin': '2%',
+                                'height': 'max(auto, 600px)',
+                                'outline': 'auto',
+                            }
+                        ),
                     ],
                     id='model-settings'
                 ),
@@ -364,9 +379,9 @@ app.layout = html.Div(
 
 if __name__ == '__main__':
     applied_strats = {}
-    FAANG = ['META', 'AMZN', 'AAPL', 'NFLX', 'GOOG']
-    long_only_faang = LongOnly(df[FAANG]) # pass params as well!!
-    momentum_faang = Momentum(df[FAANG]) # pass params as well!!
-    applied_strats['Long FAANG'] = long_only_faang
-    applied_strats['Momentum FAANG'] = momentum_faang
+    MAANG = ['META', 'AMZN', 'AAPL', 'NFLX', 'GOOG']
+    long_only_maang = LongOnly(df[MAANG])
+    momentum_maang = Momentum(df[MAANG])
+    applied_strats['Long MAANG'] = long_only_maang
+    applied_strats['Momentum MAANG'] = momentum_maang
     app.run_server(debug=True)

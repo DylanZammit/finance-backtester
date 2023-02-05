@@ -9,7 +9,6 @@ class Strat:
         prices, 
         start=None,
         end=None,
-        capital=1, 
         tc_cost=0.02, 
         risk=1, 
         min_trade=0,
@@ -25,9 +24,10 @@ class Strat:
         if start is None: start = '1900-01-01'
         if end is None: end = '2900-01-01'
         self.prices = prices.loc[start:end]
-        self.capital = capital
+
         self.tc_cost = tc_cost
         self.target_risk = risk
+
         self.args = args
         self.kwargs = kwargs
         self.num_sec = prices.shape[1]
@@ -75,15 +75,17 @@ class Strat:
         r_com = self.kwargs.get('r_com', 100)
         pnl_tentative = self.pnl_prerisk.sum(axis=1)
         risk = pnl_tentative.ewm(r_com).std()
-        return self.signal_smoothed.div(self.risk, axis=0).div(risk, axis=0).mul(self.target_risk).div(AR)
+        return self.signal_smoothed.div(self.risk, axis=0).div(risk, axis=0).div(AR)#mul(self.target_risk).div(AR)
+        #return self.signal_smoothed.div(self.risk, axis=0).div(risk, axis=0).div(AR).mul(self.target_risk).div(AR)
 
     @property
     @cache
     def pos(self):
-        return self._pos_basic.div(self.min_trade).round().mul(self.min_trade).mul(self.capital)
+        return self._pos_basic.div(self.min_trade).round().mul(self.min_trade)
+        #return self._pos_basic.div(self.min_trade).round().mul(self.min_trade).mul(self.capital)
 
     @property
-    @cache
+    #@cache
     def tc(self):
         return self.pos.diff().abs().mul(self.tc_cost).div(self.prices)
 
@@ -93,22 +95,23 @@ class Strat:
         return self.signal_smoothed.mul(self.ret).div(self.risk, axis=0)
 
     @property
-    @cache
+    #@cache
     def pnl(self):
-        return self.pos.mul(self.ret).sub(self.tc).sum(axis=1)
+        return self.pos.mul(self.ret).sub(self.tc).sum(axis=1).mul(self.target_risk)
 
     @property
-    @cache
+    #@cache
     def cumpnl(self):
         return self.pnl.cumsum()
 
     @property
-    @cache
+    #@cache
     def drawdown(self):
-        return self.pnl.cumsum() - self.pnl.cumsum().expanding().max()
+        return self.cumpnl - self.cumpnl.expanding().max()
 
     @property
-    @cache
+    #@cache
     def sharpe(self):
-        return self.pnl.mean()/(self.pnl.std()*self.capital)*16
+        return self.pnl.mean()/(self.pnl.std())*16
+        #return self.pnl.mean()/(self.pnl.std()*self.capital)*16
 

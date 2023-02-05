@@ -11,6 +11,7 @@
     padding: 0;
     margin: 0;
     border: 0;
+    font-family: monospace !important;
 }
 
 #page-content {
@@ -51,10 +52,11 @@
     height: 18vh;
     background-color: var(--light);
     padding-left: 2rem;
+    outline: auto;
 }
 
 
-.common-option, #fig-min-dd, #fig-maj-dd{
+.common-option, #fig-min-dd, #fig-maj-dd, #common-tc, #common-risk{
     width: 200px;
     margin: auto;
     height: 36px;
@@ -106,9 +108,10 @@
     margin: 2%;
     flex-direction: column;
     flex: 1;
+    outline: auto;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1300px) {
     #model-settings{
         flex-direction: column-reverse;
         display: flex;
@@ -121,7 +124,7 @@
         margin-bottom: 20px;
         height: 24vh;
     }
-    .common-option, #fig-min-dd, #fig-maj-dd{
+    .common-option, #fig-min-dd, #fig-maj-dd, #common-tc, #common-risk{
         width: 70%;
         margin: auto;
         height: 4vh;
@@ -220,14 +223,16 @@
     color: white;
 }
 
-#graph-area {
+#graph-area{
     background-color: var(--light);
     display: flex;
     flex-direction: column;
     flex: 2;
     margin: 2%;
     height: max(auto, 600px);
+    outline: auto;
 }
+
 
 #strat-pnl{
     flex: 2;
@@ -372,6 +377,7 @@
 }
 
 #linkedin-logo {
+    font-family: 'Font Awesome 6 Brands' !important;
     font-size: 3em;
     color: white;
     cursor: pointer;
@@ -442,6 +448,21 @@
     overflow: hidden;
 }
 
+.sidebar:hover .summary-del{
+    flex:1;
+    display: inline-block;
+    display: flex;
+    margin: auto;
+    margin-left: 5px;
+    overflow: hidden;
+    color: white;
+    justify-content: center;
+}
+
+.summary-del{
+    display: none;
+}
+
 .summary-name{
     display: none;
 }
@@ -457,6 +478,7 @@
 .sidebar:hover .summary-remove{
     flex:1;
     display: inline-flex;
+    font-family: 'Font Awesome 6 Free' !important;
     margin: auto;
     color: white;
     width: 1em;
