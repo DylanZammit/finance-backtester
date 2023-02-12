@@ -14,15 +14,20 @@ import dash_daq as daq
 from strats.strats import *
 import json
 
-with open('sec.json', 'r') as f:
-    tick_sec = json.loads(f.read())
-tick_sec = {k: f'{k} - {v}' for k, v in tick_sec.items()}
-tick_sec = dict(sorted(tick_sec.items(), key=lambda item: item[1]))
 
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 data_path = os.path.join(BASE_PATH, 'data')
 asset_path = os.path.join(BASE_PATH, 'assets')
 fn_reset_css = os.path.join(asset_path, 'reset.css')
+LOGO = os.path.join(asset_path, 'candlestick_logo.png')
+LOGO = os.path.join('assets', 'candlestick_logo.png')
+sec_json = os.path.join(BASE_PATH, 'sec.json')
+
+with open(sec_json, 'r') as f:
+    tick_sec = json.loads(f.read())
+
+tick_sec = {k: f'{k} - {v}' for k, v in tick_sec.items()}
+tick_sec = dict(sorted(tick_sec.items(), key=lambda item: item[1]))
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.FONT_AWESOME])
 app.css.append_css({'external_url': fn_reset_css})
@@ -87,6 +92,7 @@ def update_pnl_figure(
         'LongOnly': {},
         'Momentum': {'EWMA Window': 'com'},
         'MeanRevert': {'EWMA Window': 'com'},
+        'LongNoVol': {'Vol Window': 'com', 'Threshold': 'thresh'},
     }
     if isinstance(ctx.triggered, list) and ctx.triggered[0]['prop_id'] == 'option-strat.value':
         strat_params_container = [
@@ -98,14 +104,21 @@ def update_pnl_figure(
             )
             for k, v in strat_param_map[strat_val].items()
         ]
+        strat_params_container.append(
+            html.Div(
+                globals()[strat_val].description, className='strat-desc',
+            )
+        )
 
-        fig, fig_diff = get_fig('PnL', 'Risk')
+        fig, fig_diff = get_fig('% Return', 'Risk')
         return fig, fig_diff, container, input_name, strat, stocks, strat_params_container
     elif ctx.triggered_id == 'strat-apply':
-        if strat is None: strat = 'LongOnly'
-        if stocks is None: stocks = []
-        #if stocks is None: stocks = ['AAPL']
-        if len(stocks) > 10: stocks = stocks[:10]
+        if any([input_name=='', strat is None, len(stocks) == 0]+[pval is None for pval in param_val]):
+            fig, fig_diff = get_fig('% Return', 'Risk')
+            err_msg = [
+                html.Div('Make sure you have not left any empty fields', className='errmsg')
+            ]
+            return fig, fig_diff, container, '', None, [], err_msg
 
         kwargs = {pid['param']: pval for pid, pval in zip(param_id, param_val)}
         new_strat = globals()[strat](df[stocks], **kwargs)
@@ -121,17 +134,17 @@ def update_pnl_figure(
             className='summary-strat', id=f'{input_name}_strat'),
 
         container.append(summary[0])
-        fig, fig_diff = get_fig('PnL', 'Risk')
+        fig, fig_diff = get_fig('% Return', 'Risk')
         return fig, fig_diff, container, '', None, [], []
     elif ctx.triggered_id == 'strat-cancel':
-        fig, fig_diff = get_fig('PnL', 'Risk')
+        fig, fig_diff = get_fig('% Return', 'Risk')
         return fig, fig_diff, container, '', None, [], []
     elif isinstance(ctx.triggered_id, dict) and ctx.triggered_id['type'] == 'summary-remove':
         removed_strat = ctx.triggered_id['index']
         del applied_strats[removed_strat]
         
         container = [c for c in container if c['props'].get('id', '') != f'{removed_strat}_strat']
-        fig, fig_diff = get_fig('PnL', 'Risk')
+        fig, fig_diff = get_fig('% Return', 'Risk')
         return fig, fig_diff, container, '', None, [], []
     elif ctx.triggered_id == 'common-update-button':
 
@@ -156,7 +169,7 @@ def update_pnl_figure(
 
             container.append(summary[0])
 
-        fig, fig_diff = get_fig('PnL', 'Risk')
+        fig, fig_diff = get_fig('% Return', 'Risk')
         return fig, fig_diff, container, '', None, [], []
 
 
@@ -169,7 +182,7 @@ def get_fig(*args):
 
         for name, strat in applied_strats.items():
             my_figtype = figtype
-            if figtype.lower() == 'pnl':
+            if figtype.lower() == '% return':
                 my_figtype = 'cumpnl'
             if my_figtype.lower() == 'risk':
                 pdata = getattr(strat, 'pnl').rolling(50, min_periods=1).std()*16
@@ -207,15 +220,13 @@ def get_fig(*args):
 
     return tuple(figs)
 
-PLOTLY_LOGO = "https://images.plot.ly/logo/new-branding/plotly-logomark.png"
-PLOTLY_LOGO = 'https://thumbs.dreamstime.com/b/logo-candlestick-trading-chart-analyzing-forex-stock-market-92714359.jpg'
 sidebar = html.Div(
     [
         html.Div(
             [
                 # width: 3rem ensures the logo is the exact width of the
                 # collapsed sidebar (accounting for padding)
-                html.Img(src=PLOTLY_LOGO, style={"width": "3rem"}),
+                html.Img(src=LOGO, style={"width": "5rem", 'margin-left': '-1rem'}),
                 html.H2("Strategies"),
             ],
             className="sidebar-header",
@@ -265,15 +276,15 @@ common_area = html.Div(
                             searchable=False,
                         ),
                         dcc.Dropdown(
-                            ['PnL', 'Risk', 'Drawdown'],
-                            'PnL',
+                            ['% Return', 'Risk', 'Drawdown'],
+                            '% Return',
                             placeholder='Major Plot', 
                             id='fig-maj-dd',
                             clearable=False,
                             searchable=False,
                         ),
                         dcc.Dropdown(
-                            ['PnL', 'Risk', 'Drawdown'],
+                            ['% Return', 'Risk', 'Drawdown'],
                             'Risk',
                             placeholder='Minor Plot', 
                             id='fig-min-dd',
@@ -300,6 +311,7 @@ option_area = html.Div(
                             dcc.Dropdown(
                                 {
                                     'LongOnly': 'Long Only',
+                                    'LongNoVol': 'Long Only (vol cap)',
                                     'Momentum': 'Momentum', 
                                     'MeanRevert': 'Mean Reverting'
                                 },
@@ -375,7 +387,9 @@ if __name__ == '__main__':
     applied_strats = {}
     MAANG = ['META', 'AMZN', 'AAPL', 'NFLX', 'GOOG']
     long_only_maang = LongOnly(df[MAANG])
+    long_novol_maang = LongNoVol(df[MAANG])
     momentum_maang = Momentum(df[MAANG])
     applied_strats['Long MAANG'] = long_only_maang
+    applied_strats['Vol Cap MAANG'] = long_novol_maang
     applied_strats['Momentum MAANG'] = momentum_maang
     app.run_server(host='0.0.0.0', debug=True)
