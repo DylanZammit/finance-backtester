@@ -42,7 +42,9 @@ In order to run the backtested strategy, you can call the `simulator.py` script 
 
 ## Hosting
 In order to locally host the dashboard you can build the image as specificed in the `Dockerfile` by running
+
 `docker build --tag findash .`
+
 Then you can run the docker container command given by
 
 `docker run -it -p 8050:8050 -d --name findash findash`
