@@ -40,4 +40,13 @@ In order to run the backtested strategy, you can call the `simulator.py` script 
 
     python simulator.py -d path/to/data.csv -t TIK1,TIK2
 
+## Hosting
+In order to locally host the dashboard you can build the image as specificed in the `Dockerfile` by running
+`docker build --tag findash .`
+Then you can run the docker container command given by
+
+`docker run -it -p 8050:8050 -d --name findash findash`
+
+## Images
+
 ![findash](https://github.com/DylanZammit/finance-backtester/blob/master/README_img/fin_dashboard.jpeg)
