@@ -40,3 +40,4 @@ In order to run the backtested strategy, you can call the `simulator.py` script 
 
     python simulator.py -d path/to/data.csv -t TIK1,TIK2
 
+![findash](https://github.com/DylanZammit/property-analysis-v2/blob/master/README_img/fin_dashboard.jpeg)
