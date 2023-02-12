@@ -1,0 +1,500 @@
+:root{
+    --dark: #0e0728;
+    --light: #1a133f;
+    --cancel-btn-color: #A63236;
+    --apply-btn-color: var(--light);
+    --navbar-color: #00307d;
+    /*--navbar-color: #6b93e6;*/
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    font-family: monospace !important;
+}
+
+#page-content {
+    margin-left: 5rem;
+}
+
+#backest {
+    height: 100vh;
+    background-color: var(--light);
+    display: flex;
+    flex-direction: column;
+}
+
+#title {
+    color: white;
+    display: flex;
+    align-items: center;
+    flex: 3;
+    justify-content: end;
+    margin-right: 5%;
+    font-size: 3em;
+}
+
+#fig-dropdowns {
+    color: white;
+    display: flex;
+    align-items: center;
+    flex: 3;
+    justify-content: end;
+    margin-right: 5%;
+    flex-direction: row;
+    flex-direction: column;
+}
+
+#common-area {
+    display: flex;
+    flex-direction: row;
+    height: 18vh;
+    background-color: var(--light);
+    padding-left: 2rem;
+    border-bottom: 1px solid #fff;
+    box-shadow: 0 0px 0 #fff;
+    /*outline: auto;*/
+}
+
+
+.common-option, #fig-min-dd, #fig-maj-dd, #common-tc, #common-risk{
+    width: 200px;
+    margin: auto;
+    height: 36px;
+    margin-left: min(10%, 15px);
+    margin-right: min(10%, 15px);
+    outline: auto !important;
+    background-color: var(--dark);
+    padding-left: 10px;
+    color: white;
+    flex: 1;
+}
+
+#common-update-button{
+    flex: 0.7;
+    background-color: var(--apply-btn-color);
+    justify-content: center;
+    width: 100px;
+    color: white;
+    height: 50px;
+    margin: auto;
+    margin-left: min(10%, 15px);
+    margin-right: min(10%, 15px);
+    border: 2px solid white;
+    /*border: 2px solid var(--dark);*/
+    transition-duration: 0.4s;
+    border-radius: 15px;
+    text-align: center;
+    justify-content: center;
+    padding-top: 10px;
+    cursor: pointer;
+    font-size: 1.3em;
+}
+
+#common-update-button:hover {
+    background-color: green !important;
+    color: white;
+}
+
+#model-settings {
+    background-color: var(--dark);
+    display: flex;
+    flex-direction: row;
+    height: 82vh;
+    overflow: auto;
+}
+
+#option-area {
+    background-color: var(--light);
+    display: flex;
+    margin: 2%;
+    flex-direction: column;
+    flex: 1;
+    outline: auto;
+}
+
+@media (max-width: 1300px) {
+    #model-settings{
+        flex-direction: column-reverse;
+        display: flex;
+        height: auto;
+    }
+    .common-option, #fig-min-dd, #fig-maj-dd, #common-tc, #common-risk{
+        width: 60%;
+        margin: auto;
+        height: 4vh;
+        margin-top: min(10%, 7px);
+        margin-top: min(10%, 7px);
+    }
+    #common-area {
+        display: flex;
+        flex-direction: column;
+        height: 26vh;
+        background-color: var(--light);
+        padding-left: 2rem;
+        margin-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    #common-update-button{
+        width: 35%;
+        margin: auto;
+        height: 4vh;
+        margin-top: min(10%, 7px);
+        margin-top: min(10%, 7px);
+    }
+}
+
+.strat-hline{
+    width: 80%;
+    color: gray;
+    margin: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+
+#strat-setup-title {
+    color: white;
+    margin: auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+#strat-options-container{
+    display: flex;
+    flex-direction: column;
+    height: 80%;
+    background-color: var(--light);
+    flex: 10;
+}
+
+#add-new {
+    width: 80%;
+    flex: 2;
+    /*background-color: var(--light);*/
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+}
+
+.strat-button{
+    flex: 1;
+    margin: 0;
+    margin-top: min(10%, 20px);
+    margin-bottom: min(10%, 20px);
+    border: 2px solid white;
+    /*background-color: var(--light);*/
+    transition-duration: 0.4s;
+    color: white;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 1.3em;
+    justify-content: center;
+    height: 70px;
+}
+
+#strat-apply{
+    flex: 3;
+    background-color: var(--apply-btn-color);
+    margin-right: 10px;
+    justify-content: center;
+    padding-top: 15px;
+    cursor: pointer;
+    font-size: 1.3em;
+}
+
+
+#strat-cancel {
+    flex: 1;
+    background-color: var(--cancel-btn-color);
+    cursor: pointer;
+
+    margin-right: 10px;
+    justify-content: center;
+    padding-top: 15px;
+    font-size: 1.3em;
+}
+
+
+#strat-cancel:hover {
+    background-color: red !important;
+    color: white;
+}
+
+#strat-apply:hover {
+    background-color: green !important;
+    color: white;
+}
+
+#graph-area{
+    background-color: var(--light);
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    margin: 2%;
+    height: max(auto, 600px);
+    outline: auto;
+}
+
+
+#strat-pnl{
+    flex: 2;
+}
+
+#strat-pnl-diff{
+    flex: 1;
+}
+
+.option-box {
+    display: flex;
+    margin: auto;
+    width: 80%;
+    height: 36px;
+    margin-top: min(10%, 30px);
+    margin-bottom: min(10%, 30px);
+    background-color: var(--dark) !important;
+    outline: auto !important;
+    color: white;
+    padding-left: 10px;
+}
+
+#strat-params-container {
+    display: flex;
+    width: 100%;
+    margin: 0;
+    background-color: var(--light) !important;
+    color: white;
+    padding: 0;
+    flex-direction: column;
+}
+
+
+.Select input{
+    color:white;
+}
+
+.Select-control {
+    background-color: rgba(0,0,0,0) !important;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+.Select-menu-outer {
+    background-color: var(--dark);
+    color: white;
+}
+
+.Select-value-label {
+    color: white !important;
+}
+
+/********************************/
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 5rem;
+    padding: 2rem 1rem;
+    background-color: var(--navbar-color);
+    z-index: 1050;
+    transition: width 0.1s ease-in-out;
+}
+
+/* when the user hovers on the sidebar, expand it */
+.sidebar:hover {
+    width: 24rem;
+}
+
+/* make sure the contents of the navlink don't wrap when navbar collapses */
+.sidebar .nav-link {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* fix the width of the icons */
+.sidebar .nav-link i {
+    width: 1rem;
+}
+
+/* hide the navlink labels by default */
+.sidebar .nav-link span {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+}
+
+/* when the sidebar is hovered, reveal the labels */
+.sidebar:hover .nav-link span {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* container for the sidebar header. make sure the contents don't wrap when
+*  * the sidebar is collapsed.
+*   */
+.sidebar-header {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* position the header relative to the logo and hide by default */
+.sidebar-header h2 {
+    opacity: 0;
+    margin-left: 1rem;
+    margin-bottom: 0;
+    transition: opacity 0.1s ease-in-out;
+}
+
+/* reveal the header when the sidebar is toggled */
+.sidebar:hover .sidebar-header h2 {
+    opacity: 1;
+    color: white;
+}
+
+/* position the content relative to the collapsed sidebar */
+.content {
+    margin-left: 7rem;
+    margin-right: 2rem;
+    padding: 2rem 1rem;
+}
+
+#summary-container{
+    display: flex !important;
+    flex-direction: column;
+    height: 85%;
+    color: white;
+    font-size: 1.2em;
+}
+
+
+#linkedin-container{
+    display: flex;
+    flex-direction: row;
+}
+
+#linkedin-logo {
+    font-family: 'Font Awesome 6 Brands' !important;
+    font-size: 3em;
+    color: white;
+    cursor: pointer;
+}
+
+#linkedin-text{
+    display: none;
+}
+
+.sidebar:hover #linkedin-text{
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    font-size: 1.3em;
+    color: white !important;
+    cursor: pointer;
+    margin-left: 15px;
+    text-decoration: none !important;
+    align-items: end;
+}
+
+.summary-strat{
+    display: flex;
+    flex-direction: row;
+    height: 40px;
+    margin-bottom: 10px;
+    white-space: nowrap;
+}
+
+/* reveal the shortname when sidebar is toggled */
+.summary-short-name {
+    flex:1;
+    display: block;
+    margin: auto;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.summary-hline{
+    display: none;
+}
+
+.sidebar:hover .summary-hline{
+    display: block; 
+    overflow: hidden;
+    width: 95%;
+    color: gray;
+    margin: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.sidebar:hover .summary-short-name{
+    display: none;
+}
+
+.sidebar:hover .summary-name{
+    flex:3;
+    overflow: hidden;
+    display: inline-block;
+    margin: auto;
+}
+
+.sidebar:hover .summary-sharpe{
+    flex:1;
+    display: inline-block;
+    margin: auto;
+    overflow: hidden;
+}
+
+.sidebar:hover .summary-del{
+    flex:1;
+    display: inline-block;
+    display: flex;
+    margin: auto;
+    margin-left: 5px;
+    overflow: hidden;
+    color: white;
+    justify-content: center;
+}
+
+.summary-del{
+    display: none;
+}
+
+.summary-name{
+    display: none;
+}
+
+.summary-sharpe{
+    display: none;
+}
+
+.summary-remove{
+    display: none;
+}
+
+.sidebar:hover .summary-remove{
+    flex:1;
+    display: inline-flex;
+    font-family: 'Font Awesome 6 Free' !important;
+    margin: auto;
+    color: white;
+    width: 1em;
+    cursor: pointer;
+    overflow: hidden;
+    justify-content: center;
+    transition-duration: 0.4s;
+}
+
+.summary-remove:hover{
+    color: var(--cancel-btn-color) !important;
+}
+
+

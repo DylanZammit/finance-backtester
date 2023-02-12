@@ -1,0 +1,14 @@
+common:
+    capital: 1
+    risk: 1
+    tc_cost: 0.02
+    start: '2013-01-01'
+
+models:
+    LongOnly:
+        strat: LongOnly
+        min_trade: 0
+    Momentum:
+        strat: Momentum
+        com: 10
+        min_trade: 1
