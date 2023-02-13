@@ -13,6 +13,7 @@ import numpy as np
 import dash_daq as daq
 from strats.strats import *
 import json
+from itertools import combinations
 
 
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -177,25 +178,26 @@ def get_fig(*args):
 
     figs = []
     for figtype in args:
+        my_figtype = figtype
 
         data = pd.DataFrame()
+        if my_figtype.lower() == 'correlation':
+            strat_list = list(applied_strats.items())
+            for s1, s2 in list(combinations(strat_list, 2)):
+                pnl1 = getattr(s1[1], 'pnl')
+                pnl2 = getattr(s2[1], 'pnl')
+                data[f'{s1[0]} - {s2[0]}'] = pnl1.rolling(50).corr(pnl2)
+        else:
+            for name, strat in applied_strats.items():
+                if figtype.lower() == '% return':
+                    my_figtype = 'cumpnl'
+                if my_figtype.lower() == 'risk':
+                    pdata = getattr(strat, 'pnl').rolling(50, min_periods=1).std()*16
+                else:
+                    pdata = getattr(strat, my_figtype.lower())
 
-        for name, strat in applied_strats.items():
-            my_figtype = figtype
-            if figtype.lower() == '% return':
-                my_figtype = 'cumpnl'
-            if my_figtype.lower() == 'risk':
-                pdata = getattr(strat, 'pnl').rolling(50, min_periods=1).std()*16
-            else:
-                pdata = getattr(strat, my_figtype.lower())
-
-            pdata.name = name
-            data = pd.concat([data, pdata], axis=1)
-
-
-        #if not len(minfig_data):
-        #    pnls = pd.DataFrame(index=df.index)
-        #    pnls_diff = pd.DataFrame(index=df.index)
+                pdata.name = name
+                data = pd.concat([data, pdata], axis=1)
 
         fig = px.line(data, x=data.index, y=data.columns)
 
@@ -276,7 +278,7 @@ common_area = html.Div(
                             searchable=False,
                         ),
                         dcc.Dropdown(
-                            ['% Return', 'Risk', 'Drawdown'],
+                            ['% Return', 'Risk', 'Drawdown', 'Correlation'],
                             '% Return',
                             placeholder='Major Plot', 
                             id='fig-maj-dd',
@@ -284,7 +286,7 @@ common_area = html.Div(
                             searchable=False,
                         ),
                         dcc.Dropdown(
-                            ['% Return', 'Risk', 'Drawdown'],
+                            ['% Return', 'Risk', 'Drawdown', 'Correlation'],
                             'Risk',
                             placeholder='Minor Plot', 
                             id='fig-min-dd',
