@@ -91,17 +91,20 @@ def update_pnl_figure(
 ):
     strat_param_map = {
         'LongOnly': {},
-        'Momentum': {'EWMA Window': 'com'},
-        'MeanRevert': {'EWMA Window': 'com'},
-        'LongNoVol': {'Vol Window': 'com', 'Threshold': 'thresh'},
+        'Momentum': {'EWMA Window': ('com', 10, 310, 10)},
+        'MeanRevert': {'EWMA Window': ('com', 10, 310, 10)},
+        'LongNoVol': {'Vol Window': ('com', 10, 310, 10), 'Threshold': ('thresh', 0.1, 2, 0.1)},
     }
     if isinstance(ctx.triggered, list) and ctx.triggered[0]['prop_id'] == 'option-strat.value':
         strat_params_container = [
-            dcc.Input(
-                type='number',
+            dcc.Dropdown(
+                [round(x, 2) for x in np.arange(v[1], v[2], v[3])],
+                #list(range(v[1], v[2], v[3])),
                 placeholder=k, 
+                id={'type': 'strat-param-option', 'index': strat_val, 'param': v[0]},
+                clearable=False,
+                searchable=False,
                 className='option-box',
-                id={'type': 'strat-param-option', 'index': strat_val, 'param': v}
             )
             for k, v in strat_param_map[strat_val].items()
         ]
@@ -186,7 +189,7 @@ def get_fig(*args):
             for s1, s2 in list(combinations(strat_list, 2)):
                 pnl1 = getattr(s1[1], 'pnl')
                 pnl2 = getattr(s2[1], 'pnl')
-                data[f'{s1[0]} - {s2[0]}'] = pnl1.rolling(50).corr(pnl2)
+                data[f'{s1[0]} - {s2[0]}'] = pnl1.rolling(50, min_periods=1).corr(pnl2)
         else:
             for name, strat in applied_strats.items():
                 if figtype.lower() == '% return':

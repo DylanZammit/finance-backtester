@@ -67,7 +67,7 @@ class LongNoVol(Strat):
     def signal(self):
         com = self.kwargs.get('com', 10)
         thresh = self.kwargs.get('thresh', 0.8)
-        bigvol = self.ret.div(self.ret.std()).rolling(com).std().shift(1) < thresh
+        bigvol = self.ret.div(self.ret.std()).rolling(com, min_periods=1).std().shift(1) < thresh
         return self.prices.div(self.prices).mul(bigvol)
 
 
