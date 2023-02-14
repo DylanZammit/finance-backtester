@@ -152,9 +152,21 @@ def update_pnl_figure(
         return fig, fig_diff, container, '', None, [], []
     elif ctx.triggered_id == 'common-update-button':
 
+        container = []
         for k, v in applied_strats.items():
             v.target_risk = int(risk)/100
             v.tc_cost = int(tc)/100
+
+            summary = html.Div(
+                [
+                    html.Div(k[:2], className='summary-short-name'),
+                    html.Div(k, className='summary-name'),
+                    html.Div(f'{v.sharpe:.2f}', className='summary-sharpe'),
+                    html.I(className=f'{SQUARE_MINUS_ICO} summary-remove', id={'type': 'summary-remove', 'index': k}),
+                ],
+                className='summary-strat', id=f'{input_name}_strat'),
+
+            container.append(summary[0])
 
         fig, fig_diff = get_fig(minfig, majfig)
 
