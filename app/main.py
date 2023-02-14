@@ -202,7 +202,12 @@ def get_fig(*args):
                 pdata.name = name
                 data = pd.concat([data, pdata], axis=1)
 
-        fig = px.line(data, x=data.index, y=data.columns)
+        fig = px.line(data, x=data.index, y=data.columns,
+                      hover_data={
+                          'value': ':.2f',
+                          'variable': False,
+                      }
+                     )
 
         largs = dict(
             colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
@@ -221,6 +226,7 @@ def get_fig(*args):
         )
 
         fig.update_layout(**largs)
+        fig.update_traces(hovertemplate=None)
         figs.append(fig)
 
     return tuple(figs)

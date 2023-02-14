@@ -71,6 +71,14 @@
     flex: 1;
 }
 
+#option-name {
+    padding-left: 20px;
+}
+
+::placeholder{
+    color: #aaa
+}
+
 #common-update-button{
     flex: 0.7;
     background-color: var(--apply-btn-color);
