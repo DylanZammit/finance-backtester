@@ -164,7 +164,7 @@ def update_pnl_figure(
                     html.Div(f'{v.sharpe:.2f}', className='summary-sharpe'),
                     html.I(className=f'{SQUARE_MINUS_ICO} summary-remove', id={'type': 'summary-remove', 'index': k}),
                 ],
-                className='summary-strat', id=f'{input_name}_strat'),
+                className='summary-strat', id=f'{k}_strat'),
 
             container.append(summary[0])
 
@@ -212,15 +212,23 @@ def get_fig(*args):
             xaxis_title=None,
         )
 
-
-        if len(applied_strats) == 0:
+        def empty_figs():
             fig = px.line()
             fig.update_layout(**largs)
             figs.append(fig)
+            return figs
+
+        if len(applied_strats) == 0:
+            figs = empty_figs()
             continue
 
         data = pd.DataFrame()
         if my_figtype.lower() == 'correlation':
+
+            if len(applied_strats) == 1:
+                figs = empty_figs()
+                continue
+
             strat_list = list(applied_strats.items())
             for s1, s2 in list(combinations(strat_list, 2)):
                 pnl1 = getattr(s1[1], 'pnl')
