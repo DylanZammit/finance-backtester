@@ -179,9 +179,33 @@ def update_pnl_figure(
 
 def get_fig(*args):
 
+
     figs = []
     for figtype in args:
         my_figtype = figtype
+
+        largs = dict(
+            colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
+            template='plotly_dark',
+            paper_bgcolor='rgba(0, 0, 0, 0)',
+            plot_bgcolor='rgba(0, 0, 0, 0)',
+            margin={'b': 15},
+            #margin=dict(l=25, r=25, t=55, b=5),
+            hovermode='x',
+            autosize=True,
+            title={'text': figtype, 'font': {'color': 'white'}, 'x': 0.5},
+            legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
+            legend_title_text=None,
+            yaxis_title=None,
+            xaxis_title=None,
+        )
+
+
+        if len(applied_strats) == 0:
+            fig = px.line()
+            fig.update_layout(**largs)
+            figs.append(fig)
+            continue
 
         data = pd.DataFrame()
         if my_figtype.lower() == 'correlation':
@@ -208,22 +232,6 @@ def get_fig(*args):
                           'variable': False,
                       }
                      )
-
-        largs = dict(
-            colorway=["#5E0DAC", '#FF4F00', '#375CB1', '#FF7400', '#FFF400', '#FF0056'],
-            template='plotly_dark',
-            paper_bgcolor='rgba(0, 0, 0, 0)',
-            plot_bgcolor='rgba(0, 0, 0, 0)',
-            margin={'b': 15},
-            #margin=dict(l=25, r=25, t=55, b=5),
-            hovermode='x',
-            autosize=True,
-            title={'text': figtype, 'font': {'color': 'white'}, 'x': 0.5},
-            legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
-            legend_title_text=None,
-            yaxis_title=None,
-            xaxis_title=None,
-        )
 
         fig.update_layout(**largs)
         fig.update_traces(hovertemplate=None)
