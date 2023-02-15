@@ -1,7 +1,7 @@
 import yaml
 import numpy as np
 import pandas as pd
-from utils import cache, col_gen
+from utils import cache
 from .generic_strat import Strat
 
 

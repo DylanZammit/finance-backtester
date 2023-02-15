@@ -7,6 +7,8 @@ This framework allows easy implementation of backtesting strategies in finance. 
 - Risk scaling with cross-correlations (using covariance matrix)
 - Minimises round trades
 
+A working version can be found [here](http://dylanzammit.pythonanywhere.com/).
+
 ## Usage
 A strategy class needs to inherit from the generic `Strat` class. The only method that _needs_ to be defined in this strategy class is the `signal` method. This is the "brains" of the model and should output a "signal", i.e. buy, sell a certain amount. An example implementation is given by. 
 
